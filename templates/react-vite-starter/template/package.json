@@ -1,0 +1,38 @@
+{
+  "name": "{{projectName}}",
+  "private": true,
+  "version": "0.0.0",
+  "type": "module",
+  "scripts": {
+    "dev": "vite",
+    "build": "tsc -b && vite build",
+    "preview": "vite preview",
+    "lint": "eslint .",
+    "test": "vitest run"
+  },
+  "dependencies": {
+    "react": "^18.3.1",
+    "react-dom": "^18.3.1"{{#if router}},
+    "react-router-dom": "^6.26.2"{{/if}}
+  },
+  "devDependencies": {
+    "@types/react": "^18.3.5",
+    "@types/react-dom": "^18.3.0",
+    "@typescript-eslint/eslint-plugin": "^8.4.0",
+    "@typescript-eslint/parser": "^8.4.0",
+    "eslint": "^9.9.0",
+    "eslint-plugin-react-hooks": "^5.1.0",
+    "eslint-plugin-react-refresh": "^0.4.11",
+    "typescript": "^5.5.4",
+    "vite": "^5.4.2",
+    "@vitejs/plugin-react": "^4.3.1"{{#if tailwind}},
+    "autoprefixer": "^10.4.20",
+    "postcss": "^8.4.41",
+    "tailwindcss": "^3.4.10"{{/if}}{{#if testing}},
+    "@testing-library/react": "^16.0.0",
+    "@testing-library/user-event": "^14.6.1",
+    "@testing-library/jest-dom": "^6.4.6",
+    "vitest": "^2.0.5",
+    "jsdom": "^25.0.0"{{/if}}
+  }
+}

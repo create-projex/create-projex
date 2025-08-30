@@ -1,0 +1,85 @@
+{
+  "id": "portfolio-react",
+  "displayName": "Portfolio Website (React + TS)",
+  "version": "1.0.0",
+  "vars": [
+    {
+      "name": "projectName",
+      "prompt": "Portfolio project name",
+      "default": "my-portfolio",
+      "pattern": "^[a-z0-9-]+$"
+    },
+    {
+      "name": "fullName",
+      "prompt": "Your full name",
+      "default": "John Doe"
+    },
+    {
+      "name": "title",
+      "prompt": "Your professional title",
+      "default": "Full Stack Developer"
+    },
+    {
+      "name": "email",
+      "prompt": "Your email address",
+      "default": "john@example.com"
+    },
+    {
+      "name": "github",
+      "prompt": "GitHub username",
+      "default": "johndoe"
+    },
+    {
+      "name": "linkedin",
+      "prompt": "LinkedIn username",
+      "default": "johndoe"
+    },
+    {
+      "name": "darkMode",
+      "type": "choice",
+      "prompt": "Include dark mode toggle?",
+      "choices": ["yes", "no"],
+      "default": "yes"
+    },
+    {
+      "name": "blog",
+      "type": "choice",
+      "prompt": "Include blog section?",
+      "choices": ["yes", "no"],
+      "default": "no"
+    },
+    {
+      "name": "animations",
+      "type": "choice",
+      "prompt": "Include scroll animations?",
+      "choices": ["yes", "no"],
+      "default": "yes"
+    },
+    {
+      "name": "analytics",
+      "type": "choice",
+      "prompt": "Include Google Analytics?",
+      "choices": ["yes", "no"],
+      "default": "no"
+    },
+    {
+      "name": "deploy",
+      "type": "choice",
+      "prompt": "Deployment target",
+      "choices": ["none", "vercel", "netlify", "github-pages", "cloudflare"],
+      "default": "vercel"
+    }
+  ],
+  "postCreate": {
+    "safe": [
+      "npm ci || npm install",
+      "git init",
+      "git add .",
+      "git commit -m \"feat: initial portfolio setup for {{fullName}}\""
+    ],
+    "packageManager": "npm"
+  },
+  "requires": {
+    "node": ">=18.17.0"
+  }
+}

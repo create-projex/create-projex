@@ -1,0 +1,53 @@
+{
+  "id": "react-vite-starter",
+  "displayName": "React + Vite Starter (TS)",
+  "version": "1.0.0",
+  "vars": [
+    {
+      "name": "projectName",
+      "prompt": "Project name",
+      "default": "acme-web",
+      "pattern": "^[a-z0-9-]+$"
+    },
+    {
+      "name": "tailwind",
+      "type": "choice",
+      "prompt": "Include Tailwind CSS?",
+      "choices": ["yes", "no"],
+      "default": "yes"
+    },
+    {
+      "name": "router",
+      "type": "choice",
+      "prompt": "Include React Router?",
+      "choices": ["yes", "no"],
+      "default": "yes"
+    },
+    {
+      "name": "testing",
+      "type": "choice",
+      "prompt": "Include testing setup?",
+      "choices": ["yes", "no"],
+      "default": "yes"
+    },
+    {
+      "name": "deploy",
+      "type": "choice",
+      "prompt": "Deployment target",
+      "choices": ["none", "vercel", "netlify", "cloudflare"],
+      "default": "none"
+    }
+  ],
+  "postCreate": {
+    "safe": [
+      "npm ci || npm install",
+      "git init",
+      "git add .",
+      "git commit -m \"chore: init {{projectName}} from react-vite-starter\""
+    ],
+    "packageManager": "npm"
+  },
+  "requires": {
+    "node": ">=18.17.0"
+  }
+}
