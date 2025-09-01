@@ -1,6 +1,7 @@
 import path from "path";
 import prompts from "prompts";
 import { spawn } from "child_process";
+import { execSync } from "child_process";
 import * as log from "../core/log.js";
 import * as fs from "../core/fs.js";
 import { discoverTemplates, findTemplate, getTemplateDir, validateTemplate } from "../core/templates.js";
@@ -422,28 +423,48 @@ async function postCreationFlow(targetDir: string, context: VariableContext, opt
   // Option 1: Open in code editor
   log.nl();
   log.title("💻 Code Editor Options:");
-  log.info("You can now open your project directory in VS Code or your preferred code editor to start customizing!");
+  log.info("You can now open your project directory in your preferred code editor to start customizing!");
   
   if (!options.nonInteractive && !options.yes) {
-    const editorResponse = await prompts({
-      type: "select",
-      name: "editor",
-      message: "Would you like to open the project in a code editor?",
-      choices: [
-        { title: "Open in VS Code", value: "vscode" },
-        { title: "Open in current directory (for terminal editors)", value: "terminal" },
-        { title: "Skip - I'll open it myself", value: "skip" }
-      ],
-      initial: 0
-    });
+    const installedEditors = await detectInstalledEditors();
+    const editorChoices = [];
+    
+    // Add all detected editors as options
+    for (const editor of installedEditors) {
+      editorChoices.push({ 
+        title: `Open in ${editor.name}`, 
+        value: editor.value 
+      });
+    }
+    
+    // Always add terminal and skip options
+    editorChoices.push(
+      { title: "Open in current directory (for terminal editors)", value: "terminal" },
+      { title: "Skip - I'll open it myself", value: "skip" }
+    );
+    
+    if (editorChoices.length > 2) { // More than just terminal and skip options
+      const editorResponse = await prompts({
+        type: "select",
+        name: "editor",
+        message: "Would you like to open the project in a code editor?",
+        choices: editorChoices,
+        initial: 0
+      });
 
-    if (editorResponse.editor === "vscode") {
-      await openInVSCode(targetDir);
-    } else if (editorResponse.editor === "terminal") {
-      log.info(`Opening terminal in project directory...`);
-      // Change to the target directory
-      process.chdir(targetDir);
-      log.success(`Current directory changed to: ${targetDir}`);
+      if (editorResponse.editor && editorResponse.editor !== "terminal" && editorResponse.editor !== "skip") {
+        const selectedEditor = installedEditors.find(editor => editor.value === editorResponse.editor);
+        if (selectedEditor) {
+          await openInEditor(targetDir, selectedEditor);
+        }
+      } else if (editorResponse.editor === "terminal") {
+        log.info(`Opening terminal in project directory...`);
+        // Change to the target directory
+        process.chdir(targetDir);
+        log.success(`Current directory changed to: ${targetDir}`);
+      }
+    } else {
+      log.info("No code editors detected. You can open the project manually in your preferred editor.");
     }
   }
   
@@ -463,10 +484,34 @@ async function postCreationFlow(targetDir: string, context: VariableContext, opt
     if (aiResponse.useAI) {
       log.nl();
       log.title("🚀 Gemini CLI Setup:");
-      log.info("You can install and use Gemini CLI to get AI help with your project:");
-      log.info("  📦 Quick run: npx https://github.com/google-gemini/gemini-cli");
-      log.info("  🌐 Or install globally: npm install -g @google/gemini-cli");
-      log.info("  💡 After installation, you can ask AI to help modify your data and components!");
+      
+      const isGeminiInstalled = await checkGeminiCLIInstalled();
+      
+      if (!isGeminiInstalled) {
+        log.info("Gemini CLI is not installed. Would you like to install it now?");
+        
+        const installResponse = await prompts({
+          type: "confirm",
+          name: "installGemini",
+          message: "Install Gemini CLI?",
+          initial: true
+        });
+
+        if (installResponse.installGemini) {
+          try {
+            await installGeminiCLI();
+          } catch (error) {
+            log.warn("⚠️ Could not install Gemini CLI automatically. You can install it manually:");
+            log.info("  npm install -g @google/gemini-cli");
+            return;
+          }
+        } else {
+          log.info("You can install Gemini CLI later with: npm install -g @google/gemini-cli");
+          return;
+        }
+      } else {
+        log.success("✅ Gemini CLI is already installed!");
+      }
       
       const runNowResponse = await prompts({
         type: "confirm",
@@ -481,7 +526,7 @@ async function postCreationFlow(targetDir: string, context: VariableContext, opt
           await runGeminiCLI(targetDir);
         } catch (error) {
           log.warn("⚠️ Could not run Gemini CLI automatically. You can run it manually later:");
-          log.info("  npx https://github.com/google-gemini/gemini-cli");
+          log.info("  gemini");
         }
       }
     }
@@ -551,7 +596,8 @@ async function openInVSCode(targetDir: string) {
 
 async function runGeminiCLI(targetDir: string) {
   return new Promise<void>((resolve, reject) => {
-    const child = spawn("npx", ["https://github.com/google-gemini/gemini-cli"], {
+    // Use the globally installed gemini command
+    const child = spawn("gemini", [], {
       cwd: targetDir,
       stdio: "inherit"
     });
@@ -610,4 +656,175 @@ async function runDevServer(targetDir: string) {
     log.info("  npm install");
     log.info("  npm run dev");
   }
+}
+
+interface CodeEditor {
+  name: string;
+  value: string;
+  command: string;
+  args: string[];
+  isInstalled: boolean;
+}
+
+async function detectInstalledEditors(): Promise<CodeEditor[]> {
+  const editors: CodeEditor[] = [
+    {
+      name: "VS Code",
+      value: "vscode",
+      command: "code",
+      args: [],
+      isInstalled: false
+    },
+    {
+      name: "VS Code Insiders",
+      value: "vscode-insiders",
+      command: "code-insiders",
+      args: [],
+      isInstalled: false
+    },
+    {
+      name: "Sublime Text",
+      value: "sublime",
+      command: "subl",
+      args: [],
+      isInstalled: false
+    },
+    {
+      name: "Atom",
+      value: "atom",
+      command: "atom",
+      args: [],
+      isInstalled: false
+    },
+    {
+      name: "Vim",
+      value: "vim",
+      command: "vim",
+      args: [],
+      isInstalled: false
+    },
+    {
+      name: "Neovim",
+      value: "nvim",
+      command: "nvim",
+      args: [],
+      isInstalled: false
+    },
+    {
+      name: "Emacs",
+      value: "emacs",
+      command: "emacs",
+      args: [],
+      isInstalled: false
+    },
+    {
+      name: "Nano",
+      value: "nano",
+      command: "nano",
+      args: [],
+      isInstalled: false
+    },
+    {
+      name: "Cursor",
+      value: "cursor",
+      command: "cursor",
+      args: [],
+      isInstalled: false
+    },
+    {
+      name: "IntelliJ IDEA",
+      value: "idea",
+      command: "idea",
+      args: [],
+      isInstalled: false
+    },
+    {
+      name: "WebStorm",
+      value: "webstorm",
+      command: "webstorm",
+      args: [],
+      isInstalled: false
+    }
+  ];
+
+  // Check which editors are installed
+  for (const editor of editors) {
+    try {
+      execSync(`which ${editor.command}`, { stdio: 'ignore' });
+      editor.isInstalled = true;
+    } catch {
+      // Editor not found in PATH
+      editor.isInstalled = false;
+    }
+  }
+
+  return editors.filter(editor => editor.isInstalled);
+}
+
+async function checkGeminiCLIInstalled(): Promise<boolean> {
+  try {
+    execSync('which gemini', { stdio: 'ignore' });
+    return true;
+  } catch {
+    try {
+      // Also check if it's installed as npm package
+      execSync('npm list -g @google/gemini-cli', { stdio: 'ignore' });
+      return true;
+    } catch {
+      return false;
+    }
+  }
+}
+
+async function installGeminiCLI(): Promise<void> {
+  return new Promise<void>((resolve, reject) => {
+    log.info("Installing gemini cli");
+    
+    const child = spawn("npm", ["install", "-g", "@google/gemini-cli"], {
+      stdio: "inherit"
+    });
+    
+    child.on("close", (code) => {
+      if (code === 0) {
+        log.success("✅ Gemini CLI installed successfully!");
+        resolve();
+      } else {
+        reject(new Error(`Gemini CLI installation failed with code ${code}`));
+      }
+    });
+    
+    child.on("error", (error) => {
+      reject(error);
+    });
+  });
+}
+
+async function openInEditor(targetDir: string, editor: CodeEditor) {
+  return new Promise<void>((resolve) => {
+    try {
+      log.info(`Opening in ${editor.name}...`);
+      
+      const child = spawn(editor.command, [targetDir, ...editor.args], {
+        stdio: "ignore",
+        detached: true
+      });
+      
+      // Handle success case
+      child.on("spawn", () => {
+        log.success(`✅ Project opened in ${editor.name}!`);
+        child.unref();
+        resolve();
+      });
+      
+      // Handle error case
+      child.on("error", (error: NodeJS.ErrnoException) => {
+        log.warn(`💡 Couldn't open ${editor.name} automatically. You can open your project folder manually!`);
+        resolve();
+      });
+      
+    } catch (error) {
+      log.warn(`💡 Couldn't open ${editor.name} automatically. You can open your project folder manually!`);
+      resolve();
+    }
+  });
 }
