@@ -1,0 +1,59 @@
+# Development and build files
+src/
+tsconfig*.json
+vitest.config.ts
+eslint.config.js
+
+# Development dependencies and configs
+node_modules/
+.eslintcache
+.stylelintcache
+
+# Testing and coverage
+test/
+tests/
+coverage/
+*.test.js
+*.test.ts
+*.spec.js
+*.spec.ts
+
+# IDE and editor files
+.vscode/
+.idea/
+*.swp
+*.swo
+*~
+
+# OS generated files
+.DS_Store
+.DS_Store?
+._*
+.Spotlight-V100
+.Trashes
+ehthumbs.db
+Thumbs.db
+
+# Environment and local files
+.env*
+*.local
+
+# Git files
+.git/
+.gitignore
+
+# Documentation and development files
+CONTRIBUTING.md
+.github/
+
+# Logs and debugging
+logs/
+*.log
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+pnpm-debug.log*
+
+# Temporary files
+tmp/
+temp/

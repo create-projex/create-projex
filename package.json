@@ -1,8 +1,48 @@
 {
   "name": "create-projex",
   "version": "0.1.0",
+  "description": "A blazing-fast CLI tool to scaffold modern web projects with guided setup and AI assistance",
   "type": "module",
-  "bin": { "create-projex": "dist/index.js" },
+  "main": "dist/index.js",
+  "bin": {
+    "create-projex": "dist/index.js"
+  },
+  "files": [
+    "dist",
+    "templates",
+    "README.md",
+    "LICENSE"
+  ],
+  "keywords": [
+    "cli",
+    "scaffold",
+    "template",
+    "react",
+    "astro",
+    "vite",
+    "typescript",
+    "create",
+    "boilerplate",
+    "starter",
+    "portfolio",
+    "blog",
+    "landing-page",
+    "web-development"
+  ],
+  "author": "Dhruv Chheda <chhedadhruv@gmail.com> (https://github.com/chhedadhruv)",
+  "license": "MIT",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/chhedadhruv/create-projex.git"
+  },
+  "bugs": {
+    "url": "https://github.com/chhedadhruv/create-projex/issues"
+  },
+  "homepage": "https://github.com/chhedadhruv/create-projex#readme",
+  "engines": {
+    "node": ">=18.17.0",
+    "npm": ">=8.0.0"
+  },
   "scripts": {
     "dev": "tsc -w",
     "build": "tsc -p tsconfig.build.json",
