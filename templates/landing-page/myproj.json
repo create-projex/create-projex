@@ -1,0 +1,80 @@
+{
+  "id": "landing-page",
+  "displayName": "Landing Page (React + TS)",
+  "version": "1.0.0",
+  "vars": [
+    {
+      "name": "projectName",
+      "prompt": "Landing page project name",
+      "default": "my-landing-page",
+      "pattern": "^[a-z0-9-]+$"
+    },
+    {
+      "name": "companyName",
+      "prompt": "Company/Product name",
+      "default": "Awesome Startup"
+    },
+    {
+      "name": "productName",
+      "prompt": "Product name",
+      "default": "Amazing Product"
+    },
+    {
+      "name": "tagline",
+      "prompt": "Product tagline/description",
+      "default": "The ultimate solution for your business needs"
+    },
+    {
+      "name": "contactEmail",
+      "prompt": "Contact email address",
+      "default": "hello@example.com"
+    },
+    {
+      "name": "primaryColor",
+      "type": "choice",
+      "prompt": "Primary brand color",
+      "choices": ["blue", "purple", "green", "orange", "pink", "indigo"],
+      "default": "blue"
+    },
+    {
+      "name": "animations",
+      "type": "choice",
+      "prompt": "Include scroll animations?",
+      "choices": ["yes", "no"],
+      "default": "yes"
+    },
+    {
+      "name": "newsletter",
+      "type": "choice",
+      "prompt": "Include newsletter signup?",
+      "choices": ["yes", "no"],
+      "default": "yes"
+    },
+    {
+      "name": "analytics",
+      "type": "choice",
+      "prompt": "Include Google Analytics?",
+      "choices": ["yes", "no"],
+      "default": "no"
+    },
+    {
+      "name": "deploy",
+      "type": "choice",
+      "prompt": "Deployment target",
+      "choices": ["none", "vercel", "netlify", "github-pages", "cloudflare"],
+      "default": "vercel"
+    }
+  ],
+  "postCreate": {
+    "safe": [
+      "npm ci || npm install",
+      "git init",
+      "git add .",
+      "git commit -m \"feat: initial landing page setup for {{companyName}}\""
+    ],
+    "packageManager": "npm"
+  },
+  "requires": {
+    "node": ">=18.17.0"
+  }
+}

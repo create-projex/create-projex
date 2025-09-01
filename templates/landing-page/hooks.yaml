@@ -1,0 +1,49 @@
+install:
+  - run: "npm ci || npm install"
+
+git:
+  - run: "git init && git add . && git commit -m 'feat: initial landing page for {{companyName}}'"
+
+notes:
+  - text: "🚀 Landing page created for {{companyName}}!"
+  - text: "Run: npm run dev  •  Open: http://localhost:5173"
+  - text: "📝 Edit src/data/content.ts to customize your content"
+
+deploy:
+  - when: "{{deploy}} == vercel"
+    text: |
+      🚀 Deploy to Vercel:
+        npm install -g vercel
+        vercel login
+        vercel --prod
+        
+      Or connect your GitHub repo at vercel.com for auto-deploy!
+
+  - when: "{{deploy}} == netlify"
+    text: |
+      🚀 Deploy to Netlify:
+        npm install -g netlify-cli
+        netlify login
+        npm run build
+        netlify deploy --prod --dir=dist
+        
+      Or drag & drop the 'dist' folder to netlify.com!
+
+  - when: "{{deploy}} == github-pages"
+    text: |
+      🚀 Deploy to GitHub Pages:
+        1. Push your code to GitHub
+        2. Go to Settings > Pages in your repo
+        3. Select "Deploy from a branch" > "gh-pages"
+        4. Run: npm run deploy
+        
+      Your landing page will be at: https://{{github}}.github.io/{{projectName}}
+
+  - when: "{{deploy}} == cloudflare"
+    text: |
+      🚀 Deploy to Cloudflare Pages:
+        npm install -g wrangler
+        npm run build
+        npx wrangler pages deploy dist
+        
+      Or connect your GitHub repo at dash.cloudflare.com!

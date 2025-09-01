@@ -81,3 +81,20 @@ export function processHandlebarsConditionals(content: string, context: Conditio
   
   return result;
 }
+
+/**
+ * Process handlebars-style conditionals with value comparisons for variables
+ * Handles {{#if (eq variable "value")}} patterns
+ */
+export function processVariableHandlebarsConditionals(content: string, context: any): string {
+  let result = content;
+  
+  // Process {{#if (eq variable "value")}} blocks
+  const eqPattern = /\{\{#if\s+\(eq\s+(\w+)\s+"([^"]+)"\)\}\}([\s\S]*?)\{\{\/if\}\}/g;
+  result = result.replace(eqPattern, (match, variableName, expectedValue, block) => {
+    const actualValue = context[variableName];
+    return actualValue === expectedValue ? block : '';
+  });
+  
+  return result;
+}

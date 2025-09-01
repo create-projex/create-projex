@@ -420,7 +420,7 @@ We welcome contributions! Please see our [Contributing Guide](CONTRIBUTING.md) f
 
 ## 📄 **License**
 
-MIT © [Dhruv](https://github.com/chhedadhruv)
+MIT © [Dhruv Chheda](https://github.com/chhedadhruv)
 
 ---
 

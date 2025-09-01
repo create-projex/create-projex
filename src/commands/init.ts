@@ -5,7 +5,7 @@ import * as log from "../core/log.js";
 import * as fs from "../core/fs.js";
 import { discoverTemplates, findTemplate, getTemplateDir, validateTemplate } from "../core/templates.js";
 import { renderVariables, renderPath, validateProjectName, sanitizeProjectName, getPatternErrorMessage } from "../core/variables.js";
-import { processConditionals, processHandlebarsConditionals, shouldWriteFile } from "../core/conditionals.js";
+import { processConditionals, processHandlebarsConditionals, processVariableHandlebarsConditionals, shouldWriteFile } from "../core/conditionals.js";
 import { loadHooks, executeHooks, printHookMessages } from "../core/hooks.js";
 import type { InitOptions, VariableContext, ConditionalContext, TemplateVariable } from "../types.js";
 
@@ -79,7 +79,7 @@ export async function initCommand(projectNameArg: string | undefined, options: I
     // Create conditional context for processing templates
     const conditionalContext: ConditionalContext = {
       router: context.router === "yes",
-      tailwind: context.tailwind === "yes" || (context.tailwind === undefined && (template.id === "portfolio-react" || template.id === "personal-blog")),
+      tailwind: context.tailwind === "yes" || (context.tailwind === undefined && (template.id === "portfolio-react" || template.id === "personal-blog" || template.id === "landing-page")),
       testing: context.testing === "yes",
       darkMode: context.darkMode === "yes",
       blog: context.blog === "yes",
@@ -364,6 +364,11 @@ async function copyTemplate(
       // Handle handlebars-style conditionals (for package.json)
       if (srcFile.endsWith("package.json")) {
         content = processHandlebarsConditionals(content, conditionalContext);
+      }
+      
+      // Handle variable-based handlebars conditionals (for config files)
+      if (srcFile.endsWith("tailwind.config.cjs") || srcFile.endsWith("tailwind.config.js")) {
+        content = processVariableHandlebarsConditionals(content, context);
       }
       
       // Process comment-style conditionals
