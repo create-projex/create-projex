@@ -1,0 +1,111 @@
+{
+  "id": "personal-blog",
+  "displayName": "Personal Blog (Astro + MDX)",
+  "version": "1.0.0",
+  "vars": [
+    {
+      "name": "projectName",
+      "prompt": "Blog project name",
+      "default": "my-blog",
+      "pattern": "^[a-z0-9-]+$"
+    },
+    {
+      "name": "blogTitle",
+      "prompt": "Blog title",
+      "default": "My Personal Blog"
+    },
+    {
+      "name": "blogDescription",
+      "prompt": "Blog description",
+      "default": "A modern blog built with Astro and MDX"
+    },
+    {
+      "name": "authorName",
+      "prompt": "Author name",
+      "default": "John Doe"
+    },
+    {
+      "name": "authorEmail",
+      "prompt": "Author email",
+      "default": "john@example.com"
+    },
+    {
+      "name": "authorBio",
+      "prompt": "Short author bio",
+      "default": "A passionate writer and developer sharing insights about technology and life."
+    },
+    {
+      "name": "siteUrl",
+      "prompt": "Site URL (for SEO and RSS)",
+      "default": "https://myblog.com"
+    },
+    {
+      "name": "github",
+      "prompt": "GitHub username",
+      "default": "johndoe"
+    },
+    {
+      "name": "twitter",
+      "prompt": "Twitter/X username (without @)",
+      "default": "johndoe"
+    },
+    {
+      "name": "linkedin",
+      "prompt": "LinkedIn username",
+      "default": "johndoe"
+    },
+    {
+      "name": "darkMode",
+      "type": "choice",
+      "prompt": "Include dark mode toggle?",
+      "choices": ["yes", "no"],
+      "default": "yes"
+    },
+    {
+      "name": "analytics",
+      "type": "choice",
+      "prompt": "Include Google Analytics?",
+      "choices": ["yes", "no"],
+      "default": "no"
+    },
+    {
+      "name": "googleAnalyticsId",
+      "prompt": "Google Analytics ID (if enabled)",
+      "default": "G-XXXXXXXXXX",
+      "when": "analytics == yes"
+    },
+    {
+      "name": "newsletter",
+      "type": "choice",
+      "prompt": "Include newsletter signup?",
+      "choices": ["yes", "no"],
+      "default": "no"
+    },
+    {
+      "name": "comments",
+      "type": "choice",
+      "prompt": "Include comments system?",
+      "choices": ["none", "giscus", "disqus"],
+      "default": "none"
+    },
+    {
+      "name": "deploy",
+      "type": "choice",
+      "prompt": "Deployment target",
+      "choices": ["none", "vercel", "netlify", "github-pages", "cloudflare"],
+      "default": "vercel"
+    }
+  ],
+  "postCreate": {
+    "safe": [
+      "npm ci || npm install",
+      "git init",
+      "git add .",
+      "git commit -m \"feat: initial blog setup for {{authorName}}\""
+    ],
+    "packageManager": "npm"
+  },
+  "requires": {
+    "node": ">=18.17.0"
+  }
+}

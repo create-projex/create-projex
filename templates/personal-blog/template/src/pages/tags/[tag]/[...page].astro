@@ -1,0 +1,110 @@
+---
+import type { GetStaticPaths, Page } from 'astro';
+import type { CollectionEntry } from 'astro:content';
+import { getCollection } from 'astro:content';
+import Layout from '@/layouts/Layout.astro';
+import BlogCard from '@/components/BlogCard.astro';
+import Pagination from '@/components/Pagination.astro';
+import { SITE, BLOG } from '@/config';
+import { getPublishedPosts, getAllTags, getPostsByTag, sortPostsByDate } from '@/utils';
+
+export const getStaticPaths = (async ({ paginate }) => {
+  const allPosts = await getCollection('blog');
+  const publishedPosts = getPublishedPosts(allPosts);
+  const allTags = getAllTags(publishedPosts);
+
+  return allTags.flatMap((tag) => {
+    const tagPosts = sortPostsByDate(getPostsByTag(publishedPosts, tag));
+    
+    return paginate(tagPosts, {
+      params: { tag },
+      pageSize: BLOG.postsPerPage,
+    });
+  });
+}) satisfies GetStaticPaths;
+
+type Props = {
+  page: Page<CollectionEntry<'blog'>>;
+};
+
+const { page } = Astro.props;
+const { tag } = Astro.params;
+const posts = page.data;
+---
+
+<Layout 
+  title={`Posts tagged "${tag}"${page.currentPage > 1 ? ` - Page ${page.currentPage}` : ''} | ${SITE.title}`}
+  description={`All posts tagged with "${tag}" - Page ${page.currentPage} of ${page.lastPage}`}
+>
+  <div class="container mx-auto px-4 py-8">
+    <!-- Page Header -->
+    <div class="text-center mb-12">
+      <div class="inline-block px-4 py-2 bg-primary-100 dark:bg-primary-900/30 text-primary-700 dark:text-primary-300 rounded-full text-sm font-medium mb-4">
+        Tag
+      </div>
+      <h1 class="text-4xl md:text-5xl font-bold text-gray-900 dark:text-white mb-4">
+        {tag}
+      </h1>
+      <p class="text-xl text-gray-600 dark:text-gray-400 max-w-2xl mx-auto">
+        {posts.length > 0 
+          ? `${page.total} post${page.total === 1 ? '' : 's'} tagged with "${tag}"`
+          : `No posts found with tag "${tag}"`
+        }
+      </p>
+    </div>
+
+    <!-- Breadcrumb -->
+    <nav class="flex items-center space-x-2 text-sm text-gray-500 dark:text-gray-400 mb-8">
+      <a href="/" class="hover:text-primary-600 dark:hover:text-primary-400 transition-colors">
+        Home
+      </a>
+      <span>/</span>
+      <a href="/tags" class="hover:text-primary-600 dark:hover:text-primary-400 transition-colors">
+        Tags
+      </a>
+      <span>/</span>
+      <span class="text-gray-900 dark:text-white font-medium">
+        {tag}
+      </span>
+    </nav>
+
+    <!-- Posts -->
+    {posts.length > 0 ? (
+      <div class="space-y-8">
+        <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+          {posts.map(post => (
+            <BlogCard post={post} />
+          ))}
+        </div>
+
+        <!-- Pagination -->
+        <div class="flex justify-center mt-12">
+          <Pagination 
+            currentPage={page.currentPage}
+            totalPages={page.lastPage}
+            baseUrl={`/tags/${tag}`}
+          />
+        </div>
+      </div>
+    ) : (
+      <div class="text-center py-12">
+        <div class="text-6xl mb-4">🔍</div>
+        <h2 class="text-2xl font-bold text-gray-900 dark:text-white mb-2">
+          No posts found
+        </h2>
+        <p class="text-gray-600 dark:text-gray-400 mb-4">
+          There are no posts tagged with "{tag}".
+        </p>
+        <a 
+          href="/tags" 
+          class="inline-flex items-center text-primary-600 dark:text-primary-400 hover:text-primary-700 dark:hover:text-primary-300 font-medium transition-colors"
+        >
+          <svg class="w-4 h-4 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 19l-7-7 7-7"></path>
+          </svg>
+          Browse all tags
+        </a>
+      </div>
+    )}
+  </div>
+</Layout>

@@ -1,0 +1,266 @@
+---
+title: "TypeScript Best Practices for Better Code"
+description: "Essential TypeScript patterns and practices that will make your code more maintainable, type-safe, and developer-friendly."
+pubDate: 2024-01-25
+heroImage: "/blog-placeholder-3.jpg"
+heroImageAlt: "TypeScript logo with code snippets"
+tags: ["typescript", "javascript", "best practices", "code quality"]
+categories: ["programming", "tutorials"]
+---
+
+# TypeScript Best Practices for Better Code
+
+TypeScript has become an essential tool in modern JavaScript development, providing static type checking and enhanced developer experience. Here are some best practices I've learned over the years that will help you write better TypeScript code.
+
+## 1. Use Strict Mode
+
+Always enable strict mode in your `tsconfig.json`:
+
+```json
+{
+  "compilerOptions": {
+    "strict": true,
+    "noImplicitAny": true,
+    "strictNullChecks": true,
+    "strictFunctionTypes": true
+  }
+}
+```
+
+This catches potential errors early and forces you to be more explicit about your types.
+
+## 2. Prefer Type Annotations Over Type Assertions
+
+**❌ Avoid:**
+```typescript
+const user = getUserData() as User;
+```
+
+**✅ Prefer:**
+```typescript
+const user: User = getUserData();
+```
+
+Type annotations provide better type safety and catch errors at compile time.
+
+## 3. Use Union Types Effectively
+
+Union types are powerful for modeling data that can be one of several types:
+
+```typescript
+type Status = 'loading' | 'success' | 'error';
+type ID = string | number;
+
+function handleStatus(status: Status) {
+  switch (status) {
+    case 'loading':
+      // Handle loading
+      break;
+    case 'success':
+      // Handle success
+      break;
+    case 'error':
+      // Handle error
+      break;
+  }
+}
+```
+
+## 4. Leverage Utility Types
+
+TypeScript provides many built-in utility types:
+
+```typescript
+interface User {
+  id: number;
+  name: string;
+  email: string;
+  age: number;
+}
+
+// Pick specific properties
+type UserSummary = Pick<User, 'id' | 'name'>;
+
+// Make all properties optional
+type PartialUser = Partial<User>;
+
+// Make all properties required
+type RequiredUser = Required<Partial<User>>;
+
+// Omit specific properties
+type UserWithoutAge = Omit<User, 'age'>;
+```
+
+## 5. Use Branded Types for Better Type Safety
+
+Create branded types to prevent mixing up similar primitive types:
+
+```typescript
+type UserId = string & { __brand: 'UserId' };
+type ProductId = string & { __brand: 'ProductId' };
+
+function createUserId(id: string): UserId {
+  return id as UserId;
+}
+
+function getUser(id: UserId) {
+  // This function only accepts UserId, not just any string
+}
+
+// This prevents accidental mixing of IDs
+const userId = createUserId('user123');
+const productId = 'product456' as ProductId;
+
+getUser(userId); // ✅ Works
+getUser(productId); // ❌ Type error
+```
+
+## 6. Use `const` Assertions for Immutable Data
+
+```typescript
+// Without const assertion
+const colors = ['red', 'green', 'blue']; // string[]
+
+// With const assertion
+const colors = ['red', 'green', 'blue'] as const; // readonly ['red', 'green', 'blue']
+
+// For objects
+const config = {
+  apiUrl: 'https://api.example.com',
+  timeout: 5000,
+} as const;
+```
+
+## 7. Implement Proper Error Handling
+
+Use discriminated unions for error handling:
+
+```typescript
+type Result<T, E = Error> = 
+  | { success: true; data: T }
+  | { success: false; error: E };
+
+async function fetchUser(id: string): Promise<Result<User>> {
+  try {
+    const user = await api.getUser(id);
+    return { success: true, data: user };
+  } catch (error) {
+    return { success: false, error: error as Error };
+  }
+}
+
+// Usage
+const result = await fetchUser('123');
+if (result.success) {
+  console.log(result.data.name); // TypeScript knows this is User
+} else {
+  console.error(result.error.message); // TypeScript knows this is Error
+}
+```
+
+## 8. Use Generic Constraints
+
+Make your generics more specific with constraints:
+
+```typescript
+interface Identifiable {
+  id: string;
+}
+
+function updateEntity<T extends Identifiable>(
+  entity: T,
+  updates: Partial<T>
+): T {
+  return { ...entity, ...updates };
+}
+
+// This ensures T always has an id property
+```
+
+## 9. Prefer Interfaces Over Type Aliases for Object Shapes
+
+**✅ For object shapes:**
+```typescript
+interface User {
+  id: string;
+  name: string;
+}
+
+interface AdminUser extends User {
+  permissions: string[];
+}
+```
+
+**✅ For unions and computed types:**
+```typescript
+type Status = 'active' | 'inactive';
+type UserWithStatus = User & { status: Status };
+```
+
+## 10. Use Index Signatures Carefully
+
+Be specific about what keys and values are allowed:
+
+```typescript
+// Too broad
+interface Config {
+  [key: string]: any;
+}
+
+// Better
+interface Config {
+  [key: string]: string | number | boolean;
+}
+
+// Even better - be explicit
+interface Config {
+  apiUrl: string;
+  timeout: number;
+  debug: boolean;
+  [key: `feature_${string}`]: boolean;
+}
+```
+
+## 11. Leverage Template Literal Types
+
+Create powerful string-based types:
+
+```typescript
+type EventName = `on${Capitalize<string>}`;
+type HTTPMethod = 'GET' | 'POST' | 'PUT' | 'DELETE';
+type Endpoint = `/${string}`;
+
+// Usage
+function addEventListener(event: EventName, handler: Function) {
+  // Only accepts strings starting with 'on'
+}
+
+addEventListener('onClick', handler); // ✅
+addEventListener('click', handler); // ❌
+```
+
+## 12. Use Proper Return Type Annotations
+
+Always annotate function return types, especially for public APIs:
+
+```typescript
+function calculateTotal(items: Item[]): number {
+  return items.reduce((sum, item) => sum + item.price, 0);
+}
+
+// For async functions
+async function fetchUsers(): Promise<User[]> {
+  const response = await fetch('/api/users');
+  return response.json();
+}
+```
+
+## Conclusion
+
+These practices will help you write more maintainable and type-safe TypeScript code. Remember, TypeScript is about finding the right balance between type safety and developer productivity. Start with these basics and gradually adopt more advanced patterns as your codebase grows.
+
+The key is to let TypeScript's type system work for you, not against you. Happy coding! 🚀
+
+---
+
+*What TypeScript practices have you found most helpful? I'd love to hear your thoughts and experiences!*

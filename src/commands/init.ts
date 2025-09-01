@@ -79,7 +79,7 @@ export async function initCommand(projectNameArg: string | undefined, options: I
     // Create conditional context for processing templates
     const conditionalContext: ConditionalContext = {
       router: context.router === "yes",
-      tailwind: context.tailwind === "yes" || (context.tailwind === undefined && template.id === "portfolio-react"),
+      tailwind: context.tailwind === "yes" || (context.tailwind === undefined && (template.id === "portfolio-react" || template.id === "personal-blog")),
       testing: context.testing === "yes",
       darkMode: context.darkMode === "yes",
       blog: context.blog === "yes",
@@ -211,6 +211,20 @@ async function resolveTemplate(
   return response.template;
 }
 
+function evaluateWhenCondition(condition: string, context: VariableContext): boolean {
+  // Simple condition evaluation for "variable == value" format
+  const match = condition.match(/^(\w+)\s*==\s*(.+)$/);
+  if (match) {
+    const [, variableName, expectedValue] = match;
+    const actualValue = context[variableName];
+    return actualValue === expectedValue.trim();
+  }
+  
+  // If condition format is not recognized, default to true
+  log.debug(`Unrecognized when condition format: ${condition}`);
+  return true;
+}
+
 async function collectVariables(
   projectNameArg: string | undefined,
   options: InitOptions,
@@ -219,6 +233,15 @@ async function collectVariables(
   const context: VariableContext = {};
   
   for (const variable of variables) {
+    // Check if this variable should be prompted based on 'when' condition
+    if (variable.when) {
+      const shouldPrompt = evaluateWhenCondition(variable.when, context);
+      if (!shouldPrompt) {
+        // Skip this variable if the condition is not met
+        continue;
+      }
+    }
+    
     let value: string | undefined;
     
     // Get value from argument (for projectName)

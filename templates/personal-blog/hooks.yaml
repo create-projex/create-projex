@@ -1,0 +1,69 @@
+install:
+  - run: "npm ci || npm install"
+
+git:
+  - run: "git init && git add . && git commit -m 'feat: initial blog for {{authorName}}'"
+
+notes:
+  - text: "🚀 Personal Blog created for {{authorName}}!"
+  - text: "Run: npm run dev  •  Open: http://localhost:4321"
+  - text: "📝 Add your posts in src/content/blog/"
+  - text: "🎨 Customize site config in src/config.ts"
+
+deploy:
+  - when: "{{deploy}} == vercel"
+    text: |
+      🚀 Deploy to Vercel:
+        npm install -g vercel
+        vercel login
+        vercel --prod
+        
+      Or connect your GitHub repo at vercel.com for auto-deploy!
+
+  - when: "{{deploy}} == netlify"
+    text: |
+      🚀 Deploy to Netlify:
+        npm install -g netlify-cli
+        netlify login
+        npm run build
+        netlify deploy --prod --dir=dist
+        
+      Or drag & drop the 'dist' folder to netlify.com!
+
+  - when: "{{deploy}} == github-pages"
+    text: |
+      🚀 Deploy to GitHub Pages:
+        1. Push your code to GitHub
+        2. Go to Settings > Pages in your repo
+        3. Select "GitHub Actions" as source
+        4. The workflow will auto-deploy on push
+        
+      Your blog will be at: https://{{github}}.github.io/{{projectName}}
+
+  - when: "{{deploy}} == cloudflare"
+    text: |
+      🚀 Deploy to Cloudflare Pages:
+        npm install -g wrangler
+        npm run build
+        npx wrangler pages deploy dist
+        
+      Or connect your GitHub repo at dash.cloudflare.com!
+
+content:
+  - text: |
+      📝 Creating your first blog post:
+        1. Create a new .mdx file in src/content/blog/
+        2. Add frontmatter with title, description, date, tags
+        3. Write your content in Markdown/MDX
+        4. Run npm run dev to preview
+        
+      🏷️ Managing tags and categories:
+        - Add tags in frontmatter as array: tags: ["tech", "tutorial"]
+        - Categories work the same way: categories: ["development"]
+        - Tags and categories automatically generate index pages
+        
+      🔧 Customization:
+        - Edit src/config.ts for site settings
+        - Modify src/components/ for custom components
+        - Update src/layouts/ for page layouts
+        - Customize src/styles/global.css for styling

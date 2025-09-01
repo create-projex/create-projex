@@ -1,0 +1,74 @@
+---
+import type { GetStaticPaths, Page } from 'astro';
+import type { CollectionEntry } from 'astro:content';
+import { getCollection } from 'astro:content';
+import Layout from '@/layouts/Layout.astro';
+import BlogCard from '@/components/BlogCard.astro';
+import Pagination from '@/components/Pagination.astro';
+import { SITE, BLOG } from '@/config';
+import { sortPostsByDate, getPublishedPosts } from '@/utils';
+
+export const getStaticPaths = (async ({ paginate }) => {
+  const allPosts = await getCollection('blog');
+  const publishedPosts = getPublishedPosts(allPosts);
+  const sortedPosts = sortPostsByDate(publishedPosts);
+
+  return paginate(sortedPosts, {
+    pageSize: BLOG.postsPerPage,
+  });
+}) satisfies GetStaticPaths;
+
+type Props = {
+  page: Page<CollectionEntry<'blog'>>;
+};
+
+const { page } = Astro.props;
+const posts = page.data;
+---
+
+<Layout 
+  title={`Blog${page.currentPage > 1 ? ` - Page ${page.currentPage}` : ''} | ${SITE.title}`}
+  description={`${SITE.description} - Page ${page.currentPage} of ${page.lastPage}`}
+>
+  <div class="container mx-auto px-4 py-8">
+    <!-- Page Header -->
+    <div class="text-center mb-12">
+      <h1 class="text-4xl md:text-5xl font-bold text-gray-900 dark:text-white mb-4">
+        Blog
+      </h1>
+      <p class="text-xl text-gray-600 dark:text-gray-400 max-w-2xl mx-auto">
+        Thoughts, tutorials, and insights about technology, development, and more.
+      </p>
+    </div>
+
+    <!-- Posts Grid -->
+    {posts.length > 0 ? (
+      <div class="space-y-8">
+        <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+          {posts.map(post => (
+            <BlogCard post={post} />
+          ))}
+        </div>
+
+        <!-- Pagination -->
+        <div class="flex justify-center mt-12">
+          <Pagination 
+            currentPage={page.currentPage}
+            totalPages={page.lastPage}
+            baseUrl="/blog"
+          />
+        </div>
+      </div>
+    ) : (
+      <div class="text-center py-12">
+        <div class="text-6xl mb-4">📝</div>
+        <h2 class="text-2xl font-bold text-gray-900 dark:text-white mb-2">
+          No posts yet
+        </h2>
+        <p class="text-gray-600 dark:text-gray-400">
+          Check back soon for new content!
+        </p>
+      </div>
+    )}
+  </div>
+</Layout>

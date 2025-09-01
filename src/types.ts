@@ -5,6 +5,7 @@ export interface TemplateVariable {
   choices?: string[];
   default?: string;
   pattern?: string;
+  when?: string;
 }
 
 export interface TemplateManifest {

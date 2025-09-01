@@ -1,0 +1,59 @@
+---
+export interface Props {
+  tags: { name: string; count: number }[];
+  currentTag?: string;
+}
+
+const { tags, currentTag } = Astro.props;
+
+// Calculate font sizes based on tag frequency
+const maxCount = Math.max(...tags.map(tag => tag.count));
+const minCount = Math.min(...tags.map(tag => tag.count));
+
+const getFontSize = (count: number) => {
+  if (maxCount === minCount) return 'text-base';
+  
+  const ratio = (count - minCount) / (maxCount - minCount);
+  
+  if (ratio >= 0.8) return 'text-xl';
+  if (ratio >= 0.6) return 'text-lg';
+  if (ratio >= 0.4) return 'text-base';
+  if (ratio >= 0.2) return 'text-sm';
+  return 'text-xs';
+};
+
+const getOpacity = (count: number) => {
+  if (maxCount === minCount) return 'opacity-100';
+  
+  const ratio = (count - minCount) / (maxCount - minCount);
+  
+  if (ratio >= 0.8) return 'opacity-100';
+  if (ratio >= 0.6) return 'opacity-90';
+  if (ratio >= 0.4) return 'opacity-80';
+  if (ratio >= 0.2) return 'opacity-70';
+  return 'opacity-60';
+};
+---
+
+<div class="flex flex-wrap gap-3 items-center">
+  {tags.map(tag => (
+    <a
+      href={`/tags/${tag.name}`}
+      class={`
+        inline-block px-3 py-1 rounded-full font-medium transition-all duration-200 hover:scale-105
+        ${getFontSize(tag.count)}
+        ${getOpacity(tag.count)}
+        ${currentTag === tag.name 
+          ? 'bg-primary-600 text-white shadow-md' 
+          : 'bg-gray-100 dark:bg-gray-700 text-gray-700 dark:text-gray-300 hover:bg-primary-100 dark:hover:bg-primary-900/30 hover:text-primary-700 dark:hover:text-primary-300'
+        }
+      `}
+      title={`${tag.count} post${tag.count === 1 ? '' : 's'}`}
+    >
+      {tag.name}
+      <span class="ml-1 text-xs opacity-75">
+        ({tag.count})
+      </span>
+    </a>
+  ))}
+</div>

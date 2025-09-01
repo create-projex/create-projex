@@ -1,0 +1,109 @@
+---
+export interface Props {
+  currentPage: number;
+  totalPages: number;
+  baseUrl: string;
+  showFirstLast?: boolean;
+}
+
+const { currentPage, totalPages, baseUrl, showFirstLast = true } = Astro.props;
+
+const generatePageUrl = (page: number) => {
+  if (page === 1) return baseUrl;
+  return `${baseUrl}/${page}`;
+};
+
+const getVisiblePages = () => {
+  const delta = 2;
+  const range = [];
+  const rangeWithDots = [];
+
+  for (
+    let i = Math.max(2, currentPage - delta);
+    i <= Math.min(totalPages - 1, currentPage + delta);
+    i++
+  ) {
+    range.push(i);
+  }
+
+  if (currentPage - delta > 2) {
+    rangeWithDots.push(1, '...');
+  } else {
+    rangeWithDots.push(1);
+  }
+
+  rangeWithDots.push(...range);
+
+  if (currentPage + delta < totalPages - 1) {
+    rangeWithDots.push('...', totalPages);
+  } else {
+    rangeWithDots.push(totalPages);
+  }
+
+  return rangeWithDots;
+};
+
+const visiblePages = totalPages > 1 ? getVisiblePages() : [];
+---
+
+{totalPages > 1 && (
+  <nav aria-label="Pagination" class="flex justify-center items-center space-x-2">
+    <!-- Previous Page -->
+    {currentPage > 1 ? (
+      <a
+        href={generatePageUrl(currentPage - 1)}
+        class="px-3 py-2 text-sm font-medium text-gray-700 dark:text-gray-300 bg-white dark:bg-gray-800 border border-gray-300 dark:border-gray-600 rounded-md hover:bg-gray-50 dark:hover:bg-gray-700 hover:text-primary-600 dark:hover:text-primary-400 transition-colors"
+        aria-label="Previous page"
+      >
+        <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 19l-7-7 7-7"></path>
+        </svg>
+      </a>
+    ) : (
+      <span class="px-3 py-2 text-sm font-medium text-gray-400 dark:text-gray-600 bg-gray-100 dark:bg-gray-700 border border-gray-300 dark:border-gray-600 rounded-md cursor-not-allowed">
+        <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 19l-7-7 7-7"></path>
+        </svg>
+      </span>
+    )}
+
+    <!-- Page Numbers -->
+    {visiblePages.map((page) => (
+      page === '...' ? (
+        <span class="px-3 py-2 text-sm font-medium text-gray-500 dark:text-gray-400">
+          ...
+        </span>
+      ) : page === currentPage ? (
+        <span class="px-3 py-2 text-sm font-medium text-white bg-primary-600 border border-primary-600 rounded-md">
+          {page}
+        </span>
+      ) : (
+        <a
+          href={generatePageUrl(page as number)}
+          class="px-3 py-2 text-sm font-medium text-gray-700 dark:text-gray-300 bg-white dark:bg-gray-800 border border-gray-300 dark:border-gray-600 rounded-md hover:bg-gray-50 dark:hover:bg-gray-700 hover:text-primary-600 dark:hover:text-primary-400 transition-colors"
+        >
+          {page}
+        </a>
+      )
+    ))}
+
+    <!-- Next Page -->
+    {currentPage < totalPages ? (
+      <a
+        href={generatePageUrl(currentPage + 1)}
+        class="px-3 py-2 text-sm font-medium text-gray-700 dark:text-gray-300 bg-white dark:bg-gray-800 border border-gray-300 dark:border-gray-600 rounded-md hover:bg-gray-50 dark:hover:bg-gray-700 hover:text-primary-600 dark:hover:text-primary-400 transition-colors"
+        aria-label="Next page"
+      >
+        <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7"></path>
+        </svg>
+      </a>
+    ) : (
+      <span class="px-3 py-2 text-sm font-medium text-gray-400 dark:text-gray-600 bg-gray-100 dark:bg-gray-700 border border-gray-300 dark:border-gray-600 rounded-md cursor-not-allowed">
+        <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7"></path>
+        </svg>
+      </span>
+    )}
+  </nav>
+)}

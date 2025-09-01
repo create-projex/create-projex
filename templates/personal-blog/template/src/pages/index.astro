@@ -1,0 +1,149 @@
+---
+import { getCollection } from 'astro:content';
+import Layout from '@/layouts/Layout.astro';
+import BlogCard from '@/components/BlogCard.astro';
+import { SITE, BLOG } from '@/config';
+import { sortPostsByDate, getPublishedPosts, getFeaturedPosts } from '@/utils';
+
+const allPosts = await getCollection('blog');
+const publishedPosts = getPublishedPosts(allPosts);
+const sortedPosts = sortPostsByDate(publishedPosts);
+const featuredPosts = getFeaturedPosts(publishedPosts);
+const recentPosts = sortedPosts.slice(0, 6);
+---
+
+<Layout title={SITE.title} description={SITE.description}>
+  <!-- Hero Section -->
+  <section class="bg-gradient-to-br from-primary-50 to-blue-50 dark:from-gray-800 dark:to-gray-900 py-16 md:py-24">
+    <div class="container mx-auto px-4 text-center">
+      <h1 class="text-4xl md:text-5xl lg:text-6xl font-bold text-gray-900 dark:text-white mb-6">
+        {SITE.title}
+      </h1>
+      <p class="text-xl md:text-2xl text-gray-600 dark:text-gray-400 mb-8 max-w-3xl mx-auto">
+        {SITE.description}
+      </p>
+      <div class="flex flex-col sm:flex-row gap-4 justify-center items-center">
+        <a 
+          href="/blog" 
+          class="px-8 py-3 bg-primary-600 text-white rounded-lg font-semibold hover:bg-primary-700 transition-colors shadow-lg hover:shadow-xl"
+        >
+          Read the Blog
+        </a>
+        <a 
+          href="/about" 
+          class="px-8 py-3 text-primary-600 dark:text-primary-400 border-2 border-primary-600 dark:border-primary-400 rounded-lg font-semibold hover:bg-primary-600 hover:text-white dark:hover:bg-primary-400 dark:hover:text-gray-900 transition-colors"
+        >
+          About Me
+        </a>
+      </div>
+    </div>
+  </section>
+
+  <!-- Featured Posts -->
+  {featuredPosts.length > 0 && (
+    <section class="py-16 bg-white dark:bg-gray-800">
+      <div class="container mx-auto px-4">
+        <div class="flex items-center justify-between mb-8">
+          <h2 class="text-3xl font-bold text-gray-900 dark:text-white">
+            Featured Posts
+          </h2>
+          <a 
+            href="/blog" 
+            class="text-primary-600 dark:text-primary-400 hover:text-primary-700 dark:hover:text-primary-300 font-medium transition-colors"
+          >
+            View all posts →
+          </a>
+        </div>
+        <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+          {featuredPosts.slice(0, 3).map(post => (
+            <BlogCard post={post} />
+          ))}
+        </div>
+      </div>
+    </section>
+  )}
+
+  <!-- Recent Posts -->
+  <section class="py-16 bg-gray-50 dark:bg-gray-900">
+    <div class="container mx-auto px-4">
+      <div class="flex items-center justify-between mb-8">
+        <h2 class="text-3xl font-bold text-gray-900 dark:text-white">
+          Recent Posts
+        </h2>
+        <a 
+          href="/blog" 
+          class="text-primary-600 dark:text-primary-400 hover:text-primary-700 dark:hover:text-primary-300 font-medium transition-colors"
+        >
+          View all posts →
+        </a>
+      </div>
+      <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+        {recentPosts.map(post => (
+          <BlogCard post={post} />
+        ))}
+      </div>
+    </div>
+  </section>
+
+  <!-- Newsletter Signup -->
+  <!-- #if newsletter -->
+  <section class="py-16 bg-primary-600 dark:bg-primary-700">
+    <div class="container mx-auto px-4 text-center">
+      <h2 class="text-3xl font-bold text-white mb-4">
+        Stay Updated
+      </h2>
+      <p class="text-xl text-primary-100 mb-8 max-w-2xl mx-auto">
+        Get the latest posts delivered right to your inbox. No spam, just great content.
+      </p>
+      <form class="max-w-md mx-auto flex gap-4">
+        <input 
+          type="email" 
+          placeholder="Enter your email"
+          class="flex-1 px-4 py-3 rounded-lg border-0 focus:ring-2 focus:ring-white focus:ring-offset-2 focus:ring-offset-primary-600"
+          required
+        />
+        <button 
+          type="submit"
+          class="px-6 py-3 bg-white text-primary-600 rounded-lg font-semibold hover:bg-gray-100 transition-colors"
+        >
+          Subscribe
+        </button>
+      </form>
+    </div>
+  </section>
+  <!-- #endif -->
+
+  <!-- Stats Section -->
+  {sortedPosts.length > 0 && (
+    <section class="py-16 bg-white dark:bg-gray-800">
+      <div class="container mx-auto px-4">
+        <div class="grid grid-cols-1 md:grid-cols-3 gap-8 text-center">
+          <div>
+            <div class="text-3xl font-bold text-primary-600 dark:text-primary-400 mb-2">
+              {sortedPosts.length}
+            </div>
+            <div class="text-gray-600 dark:text-gray-400">
+              Blog Posts
+            </div>
+          </div>
+          <div>
+            <div class="text-3xl font-bold text-primary-600 dark:text-primary-400 mb-2">
+              {new Set(sortedPosts.flatMap(post => post.data.tags)).size}
+            </div>
+            <div class="text-gray-600 dark:text-gray-400">
+              Topics Covered
+            </div>
+          </div>
+          <div>
+            <div class="text-3xl font-bold text-primary-600 dark:text-primary-400 mb-2">
+              {new Date().getFullYear() - new Date(sortedPosts[sortedPosts.length - 1]?.data.pubDate).getFullYear() + 1}
+            </div>
+            <div class="text-gray-600 dark:text-gray-400">
+              Years Writing
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
+  )}
+</Layout>

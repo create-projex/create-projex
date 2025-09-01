@@ -1,0 +1,101 @@
+---
+import type { BlogPost } from '@/utils';
+import { formatDate, getReadingTime } from '@/utils';
+
+export interface Props {
+  post: BlogPost;
+  showExcerpt?: boolean;
+}
+
+const { post, showExcerpt = true } = Astro.props;
+const { title, description, pubDate, tags, heroImage, heroImageAlt } = post.data;
+---
+
+<article class="bg-white dark:bg-gray-800 rounded-lg shadow-sm border border-gray-200 dark:border-gray-700 overflow-hidden hover:shadow-md transition-shadow duration-300">
+  {heroImage && (
+    <div class="aspect-video overflow-hidden">
+      <img 
+        src={heroImage} 
+        alt={heroImageAlt || title}
+        class="w-full h-full object-cover hover:scale-105 transition-transform duration-300"
+        loading="lazy"
+      />
+    </div>
+  )}
+  
+  <div class="p-6">
+    <!-- Tags -->
+    {tags.length > 0 && (
+      <div class="flex flex-wrap gap-2 mb-3">
+        {tags.slice(0, 3).map(tag => (
+          <a 
+            href={`/tags/${tag}`}
+            class="inline-block px-2 py-1 text-xs font-medium text-primary-700 dark:text-primary-300 bg-primary-100 dark:bg-primary-900/30 rounded-full hover:bg-primary-200 dark:hover:bg-primary-900/50 transition-colors"
+          >
+            {tag}
+          </a>
+        ))}
+        {tags.length > 3 && (
+          <span class="inline-block px-2 py-1 text-xs font-medium text-gray-500 dark:text-gray-400 bg-gray-100 dark:bg-gray-700 rounded-full">
+            +{tags.length - 3} more
+          </span>
+        )}
+      </div>
+    )}
+
+    <!-- Title -->
+    <h2 class="text-xl font-semibold text-gray-900 dark:text-white mb-2 line-clamp-2">
+      <a 
+        href={`/blog/${post.slug}`}
+        class="hover:text-primary-600 dark:hover:text-primary-400 transition-colors"
+      >
+        {title}
+      </a>
+    </h2>
+
+    <!-- Description/Excerpt -->
+    {showExcerpt && (
+      <p class="text-gray-600 dark:text-gray-400 mb-4 line-clamp-3">
+        {description}
+      </p>
+    )}
+
+    <!-- Meta info -->
+    <div class="flex items-center justify-between text-sm text-gray-500 dark:text-gray-400">
+      <div class="flex items-center space-x-4">
+        <time datetime={pubDate.toISOString()}>
+          {formatDate(pubDate)}
+        </time>
+        <span class="flex items-center">
+          <svg class="w-4 h-4 mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z"></path>
+          </svg>
+          {getReadingTime(post.body)}
+        </span>
+      </div>
+      
+      <a 
+        href={`/blog/${post.slug}`}
+        class="text-primary-600 dark:text-primary-400 hover:text-primary-700 dark:hover:text-primary-300 font-medium transition-colors"
+      >
+        Read more →
+      </a>
+    </div>
+  </div>
+</article>
+
+<style>
+  .line-clamp-2 {
+    display: -webkit-box;
+    -webkit-line-clamp: 2;
+    -webkit-box-orient: vertical;
+    overflow: hidden;
+  }
+  
+  .line-clamp-3 {
+    display: -webkit-box;
+    -webkit-line-clamp: 3;
+    -webkit-box-orient: vertical;
+    overflow: hidden;
+  }
+</style>
