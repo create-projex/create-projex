@@ -509,51 +509,6 @@ async function postCreationFlow(targetDir: string, context: VariableContext, opt
     log.info("You can start the development server with: npm run dev");
   }
   
-  // Option 4: Deployment
-  log.nl();
-  log.title("🚀 Deployment Options:");
-  
-  if (!options.nonInteractive && !options.yes) {
-    const deployResponse = await prompts({
-      type: "select",
-      name: "deploy",
-      message: "Would you like to set up deployment for your project?",
-      choices: [
-        { title: "Set up Vercel deployment", value: "vercel" },
-        { title: "Set up Netlify deployment", value: "netlify" },
-        { title: "Set up Cloudflare Pages deployment", value: "cloudflare" },
-        { title: "Skip deployment for now", value: "skip" }
-      ],
-      initial: 3
-    });
-
-    if (deployResponse.deploy !== "skip") {
-      log.nl();
-      log.title(`🌍 ${deployResponse.deploy.charAt(0).toUpperCase() + deployResponse.deploy.slice(1)} Deployment:`);
-      
-      switch (deployResponse.deploy) {
-        case "vercel":
-          log.info("To deploy with Vercel:");
-          log.info("  1. Install Vercel CLI: npm i -g vercel");
-          log.info("  2. Run: vercel");
-          log.info("  3. Follow the prompts to deploy your project");
-          break;
-        case "netlify":
-          log.info("To deploy with Netlify:");
-          log.info("  1. Install Netlify CLI: npm i -g netlify-cli");
-          log.info("  2. Run: netlify deploy");
-          log.info("  3. Follow the prompts to deploy your project");
-          break;
-        case "cloudflare":
-          log.info("To deploy with Cloudflare Pages:");
-          log.info("  1. Install Wrangler CLI: npm i -g wrangler");
-          log.info("  2. Run: wrangler pages project create");
-          log.info("  3. Follow the prompts to deploy your project");
-          break;
-      }
-    }
-  }
-  
   // Final message
   log.nl();
   log.success("🎉 All set! Happy coding!");
