@@ -29,16 +29,16 @@
     "landing-page",
     "web-development"
   ],
-  "author": "Dhruv Chheda <chhedadhruv@gmail.com> (https://github.com/chhedadhruv)",
+  "author": "Dhruv Chheda <me@dhruvchheda.com> (https://github.com/chhedadhruv)",
   "license": "MIT",
   "repository": {
     "type": "git",
-    "url": "git+https://github.com/chhedadhruv/create-projex.git"
+    "url": "git+https://github.com/create-projex/create-projex.git"
   },
   "bugs": {
-    "url": "https://github.com/chhedadhruv/create-projex/issues"
+    "url": "https://github.com/create-projex/create-projex/issues"
   },
-  "homepage": "https://github.com/chhedadhruv/create-projex#readme",
+  "homepage": "https://www.create-projex.com",
   "engines": {
     "node": ">=18.17.0",
     "npm": ">=8.0.0"
