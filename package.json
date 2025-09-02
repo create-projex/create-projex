@@ -1,6 +1,6 @@
 {
   "name": "create-projex",
-  "version": "0.2.0",
+  "version": "0.3.0",
   "description": "A blazing-fast CLI tool to scaffold modern web projects with guided setup and AI assistance",
   "type": "module",
   "main": "dist/index.js",
